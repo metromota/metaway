@@ -1,0 +1,411 @@
+== script / template
+
+   Dentro de script é possivel acessar algumas variaveis do objeto com this 
+   ex: this.$slots
+   
+   Já no template utilizasse apenas $ 
+   ex: $slots
+
+
+== estrutura vue
+
+{
+    name:"",
+    components:{},
+    props:{},
+    computed:{},
+    methods:{},
+    watch:{},
+    filters:{},
+    data(){
+        return {}
+    }
+}
+
+
+== condicionais
+
+    v-show="boolean"
+    v-if="boolean"
+    v-else-if="boolean"
+    v-else
+
+
+== loop
+
+    v-bind:key="uuid"
+    v-for="(item, index) in lista"
+
+== databind ts -> html igual ao [bind]="angular"
+
+    :prop
+    v-bind:(prop)="propOnTS"
+
+== class / style
+
+    .title {
+        color:red;
+    }
+
+    :class="{classe1 : boolean, classe2: boolean}"
+    :class="["classe1","classe2"]"
+    :class="["classe3",{classe1 : boolean, classe2: boolean}]"
+    :style="{'color': 'red'}"
+
+
+== twoway data bind ts <-> html (inputs)
+
+    v-model="prop"
+
+
+== computed properties
+
+    - Faz cash de um processamento que não altera os dados de origem
+    - utilizado mais para apresentação
+
+    data(){
+        return {
+            user:{
+                name:"Herton",
+                lastName:"Mota",
+            }
+        }
+    }
+
+    computed:{
+        fullName(){
+            return this.user.name + '-' + this.user.lastName
+        }
+    }
+
+    <p>{{ fullName }}</p>
+
+== observables
+
+    - watchers são gatilhos que disparam quando o atributo do mesmo nome mudar
+
+    v-model="name"
+
+    {{ name }}
+
+    data:{
+        return {
+            name:"sem nome"
+            user:{
+                name:"",
+                lastName:""
+            }
+        }
+    }
+
+    watch:{
+        name(newValue, oldValue){
+            console.log('executa toda vez que name mudar')
+        }
+        user:{
+            handler(){
+                console.log('executa toda vez que user for alterado')
+            },
+            deep:true
+        }
+    }
+
+
+== pipes
+
+    - Similar a computed properties, mas com a flexibilidade de aplicar vários pipes
+      a um determinado valor
+
+    - definição
+    filters:{
+        upperCase(value){
+            return value.ToUpperCase()
+        }
+    }
+
+    - utilização
+    {{ nome | upperCase }}
+
+
+
+== lifecycle
+
+    criação
+        - ajax, inicialização das variaveis, sem acesso ao DOM (DOM inacessivel)
+    montagem
+        - inicializar libs externas que precisam acesso ao DOM (DOM acessivel)
+    atualização
+        - debug
+    desmontagem
+        - liberar memoria
+
+    this - faz referência ao estado
+    this - faz referência elemento no DOM (conteudo do template, acessivel após mounted)
+
+
+    beforeCreated()
+    created()
+
+    beforeMount()
+    mounted()
+
+    beforeUpdate()
+    updated()
+
+    beforeUnmounted()
+    unmounted()
+
+
+== slot -> ng-content 
+
+    - declaração
+        <slot
+            v-if="$slots.header"  
+            name="header"
+        ></slot>
+
+    - utilização
+        <template
+            v-slot:header
+        >
+        </template>
+
+
+== css scoped e global
+
+    <style scoped>
+    </style>
+
+== props
+
+    - Similar argumentos de funções
+
+    - declaração
+    props:["variant"]
+    props:{
+        variant:{
+            type:Object,
+            default:() => {
+                return {}
+            }
+        }
+    }
+
+    - utilização
+    <Component variant="100"></Component>
+
+    - utilização no template
+    <p :class="["classe1", {'classe2': variant === 100}]" >text</p>
+
+== emit
+
+    - declaração no filho
+    methods:{
+        onClose(){
+            this.$emit("close", dados_adicionais) // emissão de evento close 
+        }
+    }
+
+    - utilização no pai
+    <Filho
+        @close="onClose" // evento = manipulador
+    ></Filho>
+
+    onClose(dados){ // manipulador
+        console.log(dados) // dados_adicionais
+    }
+
+
+
+== vue router
+
+    -- configuração em main.js
+    createApp(App).use(router).mount('#app')
+
+
+    - declaração
+
+    const routes = [
+        {
+            path:"/about", // rotas estaticas sao roteadas pelo path
+            name:"about",
+            component: () => import('../views/AboutView.vue') 
+        },
+        {
+            path:"/seila",
+            name:"dinamica", // rotas dinamicas sao roteadas pelo name
+            component: () => import('../views/DinamicaView.vue') 
+        }
+    ]
+    const router = createRouter({
+        history: createWebHashHistory(), // com hash
+        history: createWebHistory(), // sem hash requer redirecionamento config no nginx
+        routes
+    })
+    export { router }
+
+
+    - navegação
+    <RouterLink to="/about">about</RouterLink>
+    
+    <RouterLink :to="dinamica">about</RouterLink>
+
+    data(){
+        return {
+            dinamica: {name:'contact'}
+        }
+    }
+
+    - renderização
+    <RouterView></RouterView>
+
+
+== rotas com parametros
+    
+    - declaração
+    const routes = [
+        {
+            path:"/usuario/:id", 
+            name:"usuario",
+            component: UserView 
+        }       
+    ]
+
+    - navegação
+    <RouterLink to="/usuario/10">ver usuario</RouterLink>
+
+    - utilização da rota
+    {{ $route.query.page }}
+    {{ $route.params.id }}
+
+    - utilização do roteamento
+    this.$route.query.page
+    this.$router.push('/pessoas')
+
+
+== vuex - gerenciamento de estado
+
+    - declaração
+    const store = createStore({
+        state:{
+            return {
+                user:{}
+            }
+        },
+        getters:{
+            name(state){
+                return state.user.name
+            }
+        },
+        mutations:{
+            changeUser(state, payload){
+                state.user = payload
+            }
+        },
+        actions:{
+            changeUser(context, payload){
+                context.commit('changeUser'payload)
+            }
+        }
+    })
+
+    - utilização
+    this.$store.state
+    this.$store.commit('changeUser', {name:"hertonmota"})
+    this.$store.dispatch('changeUser', {name:"hertonmota"})
+    this.$store.dispatch('changeUser', {name:"hertonmota"})
+        .then()
+    this.$store.getters.name
+
+    - utilização template 
+    $store.getters.name
+
+    - obs: 
+        Tanto mutation quanto quanto actions executam 
+        mesmas coisas, mas recomenda-se alterações via commit 
+           
+        mutations são sincronas e actions assincronas
+        quando for necessário grande processamento ou retornar
+        uma promise utilize actions
+
+
+== mixins
+
+    - definição no arquivo Calculated.vue
+    export default {
+        methods:{
+            calculated(){}
+        }
+    }
+
+    - utilização 
+    import Calculated from "./Calculated.vue"
+
+    export default {
+        mixins:[Calculated],
+        created(){
+            this.calculated()
+        }
+    }
+
+
+
+== composition API
+
+    - inicialização e utilização
+    export default {
+        setup(){
+
+            let name = "" // name estatico
+            let cidade = ref("") // reativo
+            let pessoa = ref({cpf:3}) // objeto reativo
+
+
+            const valor_computado = computed(()=>{
+                return `valor computado`
+            })
+
+            watch(
+
+                () => valor_computado// valores dentro de objetos necessita ser um callback, 
+                valor_computado // valores primitivos não necessita ser um callback, 
+                
+                ()=>{ executa quando valor_computado mudar },
+                { deep: true })
+
+            changeName(){
+                // é necessário utilizar o valu dentro da tag script, mas no template não.
+                cidade.value
+                pessoa.value.cpf
+            }   
+
+            return {
+                name,
+                cidade,
+                pessoa
+                changeName
+            }  
+        }
+    }
+
+
+    - ciclo de vida na composition
+    setup(){
+
+        // beforeCreate e created são o proprio setup 
+
+        onBeforeMount()
+        onMounted()
+        onBeforeUnmount()
+        onUnmount()
+
+    }
+
+    - props e eventos na composition
+    props:{
+        variant:""
+    },
+    setup(props, context){
+        props.variant
+        context // acessa todos os atributos do componente como as props definidas os slots e os emits
+    }

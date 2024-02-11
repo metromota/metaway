@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+    --primary:#038bbb;
+    --primary-hover:#0277a1;
+
+    --text-dark: #0a5483;
+    --text-light: #ececec;
+
+    --secondary: #fccb6f;
+    --secondary-hover: #e19f41;
+
+    --base:#fffefe;
+    --base-form:#dfdfdf;
+
+    --error:#df2a30;
+    --error-hover:#b8090e;
+
+    --success:rgb(8, 146, 31);
+    --success-hover:rgb(3, 122, 23);
+}
+
+body{
+    @apply bg-[var(--base)] ;
+}
+
+form.grade{
+    @apply w-full grid grid-cols-1 md:grid-cols-2 gap-x-2; 
+}
+
+form.busca{
+    @apply w-full; 
+}
+
+label {
+    @apply text-[var(--text-dark)] text-sm;
+}
+
+h1, h2, p {
+    @apply text-[var(--text-dark)] ;
+}
+
+select {
+    @apply p-2 rounded-lg w-full 
+    bg-[var(--base-form)] text-[var(--text-dark)] 
+    outline-none focus:outline-[var(--base)];
+}
+
+select > option{
+    @apply p-4 ;
+}
+
+.input {
+    @apply p-2 rounded-lg w-full 
+    bg-[var(--base-form)] text-[var(--text-dark)] 
+    outline-none focus:outline-[var(--base)];
+}
+
+button{
+    @apply transition-all ease-in-out cursor-pointer;
+}
+
+button.btn{
+    @apply py-2 px-10 border-none rounded-md w-full 
+    bg-[var(--primary)] hover:bg-[var(--primary-hover)] 
+    text-[var(--text-light)] ;
+}
+
+button:disabled{
+    @apply cursor-not-allowed ;
+}
+
+.control-container{
+    @apply w-full;
+}
+
+.error {
+    @apply text-[var(--error)];
+}
+
+.dots {
+    @apply whitespace-nowrap overflow-hidden truncate;
+}
+
+.title{
+    @apply text-center text-3xl font-semibold my-5;
+}
+
+.view-page {
+    @apply w-full h-auto flex flex-col gap-4 content-center items-center justify-center;
+}
+
+.container {
+    @apply w-full md:w-[80%] flex flex-col justify-center items-center content-center;
+}
+
+.heading {
+    @apply w-full md:w-[80%] flex justify-between items-center mb-10;
+}
+
+.content{
+    @apply w-full md:w-[80%] py-2;
+}
+
+.search-container{
+    @apply flex justify-center gap-1 w-full;
+}
+
+.input-search{
+    @apply flex flex-col  w-[88%] md:w-[85%] lg:w-[90%];
+}
+
+.btn-search-container{
+    @apply flex w-[12%] md:w-[15%] lg:w-[10%];
+}
+
+.lists {
+    @apply flex flex-col gap-2 w-full;
+}
+
+.lists > li {
+    @apply w-full border rounded-xl bg-slate-100 shadow-md p-4 flex justify-between items-center;
+}
+
+.btn-search {
+    @apply p-2 h-[40px] w-[40px] bg-[var(--primary)] 
+    shadow-md border text-[var(--text-light)] 
+    flex justify-center items-center
+    hover:bg-[--primary-hover] rounded-full;
+}
+
+.btn-add {
+    @apply p-2 h-[40px] w-[140px] bg-[var(--success)] 
+    shadow-md border text-[var(--text-light)] 
+    flex justify-center items-center
+    hover:bg-[--success-hover] rounded-md;
+}
+
+.btn-trash {
+    @apply p-2 h-[40px] w-[40px] bg-[var(--error)] 
+    shadow-md border text-[var(--text-light)] 
+    flex justify-center items-center
+    hover:bg-[--error-hover] rounded-full;
+}
+
+.btn-save{
+   @apply bg-blue-700 hover:bg-blue-800 p-2 rounded-md text-white;
+}
+
+.content-block {
+    @apply block h-[15px] text-xs;
+}
+
+.submit-section {
+    @apply mt-6 md:col-span-2 flex justify-end;
+}
