@@ -43,12 +43,14 @@
 
             <div class="content">
                 <ul class="lists">
-                    <li v-for="user in usersFinded">
+                    <li v-for="(user, index) in usersFinded" :key="index">
                         <div class="flex gap-2 dots">
                             <span>{{ user?.id }}</span>
+                            <span>-</span>
+                            <span>{{ user?.nome }}</span>
                         </div>
-                        <button class="btn-trash" @click="deleteUser(user?.id)">
-                            <BIconTrashFill></BIconTrashFill>
+                        <button class="btn-search" @click="editUser(user?.id)">
+                            <BIconPencilFill></BIconPencilFill>
                         </button>
                     </li>
                 </ul>
@@ -60,39 +62,30 @@
 <script lang="ts">
 import * as yup from "yup"
 import { Form, Field, ErrorMessage, useForm } from "vee-validate"
-import { TipoHttpCodes } from "../../core/enums/tipo-httpcodes.enum"
 import { User } from "../../core/models/user"
-import { useToast } from "vue-toastification"
 import { computed, ref } from "vue"
-import { BIconPlus, BIconTrashFill } from "bootstrap-icons-vue"
-
-const toast = useToast()
+import { BIconPlus, BIconPenFill } from "bootstrap-icons-vue"
+import { UserService } from "./user-service"
 
 export default {
     components: {
         Form,
         Field,
         ErrorMessage,
-        BIconTrashFill,
+        BIconPenFill,
         BIconPlus,
     },
 
     setup() {
-        let users = ref<User[]>([])
         const { isSubmitting, meta, errors } = useForm()
-
-        const schema = yup.object({
-            termo: yup
-                .string()
-                .min(5, "Deve possuir no mínimo 5 caracteres")
-                .required("O campo deve estar preenchido"),
-        })
-
+        const users = ref<User[]>([])
+        const usersFinded = computed(() => users.value)
         const changeUsers = (newUsers: User[]) => {
             users.value = [...newUsers]
         }
-
-        const usersFinded = computed(() => users.value)
+        const schema = yup.object({
+            termo: yup.string(),
+        })
 
         return {
             errors,
@@ -105,57 +98,22 @@ export default {
         }
     },
 
+    mounted() {
+        this.searchUser({ termo: "" })
+    },
+
     methods: {
         handleNewUser() {
             this.$router.push("/dashboard/users/novo")
         },
 
-        async searchUser(value) {
-            const url = `/api/contato/pesquisar`
-            try {
-                const responseRequest = await this.$axios.post(url, value)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { data } = responseRequest
-                    this.changeContacts(data)
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
-
-                if (response.status === TipoHttpCodes.NOT_FOUND) {
-                    toast.error(
-                        `Não foi encontrado nenhum resultado para o termo: ${value.termo}`
-                    )
-                }
-            }
+        editUser(id: number) {
+            this.$router.push(`/dashboard/users/atualizar/${id}`)
         },
 
-        async deleteUser(id) {
-            const url = `/api/user/remover/${id}`
-            try {
-                const responseRequest = await this.$axios.delete(url)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { message, object } = responseRequest
-                    if (object) toast.success(message)
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
-
-                if (response.status === TipoHttpCodes.NO_CONTENT) {
-                    toast.error(
-                        `Não existe usuário com este identificador: ${id}`
-                    )
-                }
-            }
+        async searchUser(value) {
+            const result = await UserService.findUserByTermo(value, this.$axios)
+            if (result) this.changeUsers(result)
         },
     },
 }

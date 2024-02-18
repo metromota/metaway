@@ -6,6 +6,10 @@ const personRoutes = [
     {
         path: "persons/novo",
         component: () => import("../../components/persons/FormPerson.vue"),
+    },
+    {
+        path: "persons/atualizar/:id",
+        component: () => import("../../components/persons/FormPersonUpdate.vue"),
     }
 ]
 

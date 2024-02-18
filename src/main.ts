@@ -9,14 +9,17 @@ import { BootstrapIconsPlugin } from "bootstrap-icons-vue";
 import "vue-toastification/dist/index.css";
 import './style.css'
 
+const toastOptions = {
+    closeButton: false,
+    closeOnClick: true
+}
+
 let app = createApp(App)
 app.config.globalProperties.$axios = axios;
 app.use(router)
 app.use(store)
 app.use(BootstrapIconsPlugin);
 app.use(VueTheMask)
-app.use(Toast, {
-    closeButton: false,
-    closeOnClick: true
-});
+app.use(Toast, toastOptions);
 app.mount('#app')
+

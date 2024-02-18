@@ -2,7 +2,7 @@
     <div class="view-page">
         <div class="container">
             <div class="heading">
-                <h2 class="title">Cadastro de Pessoa</h2>
+                <h2 class="title">Atualizar Pessoa</h2>
             </div>
 
             <div class="content">
@@ -20,6 +20,7 @@
                             autocomplete="cpf"
                             class="input"
                             v-mask="'###.###.###-##'"
+                            v-model="person.cpf"
                         />
                         <div class="content-block">
                             <ErrorMessage name="cpf" class="error" />
@@ -33,6 +34,7 @@
                             name="nome"
                             autocomplete="nome"
                             class="input"
+                            v-model="person.nome"
                         />
                         <div class="content-block">
                             <ErrorMessage name="nome" class="error" />
@@ -46,6 +48,7 @@
                             name="logradouro"
                             autocomplete="logradouro"
                             class="input"
+                            v-model="person.endereco.logradouro"
                         />
                         <div class="content-block">
                             <ErrorMessage name="logradouro" class="error" />
@@ -59,6 +62,7 @@
                             name="bairro"
                             autocomplete="bairro"
                             class="input"
+                            v-model="person.endereco.bairro"
                         />
                         <div class="content-block">
                             <ErrorMessage name="bairro" class="error" />
@@ -72,6 +76,7 @@
                             name="cidade"
                             autocomplete="cidade"
                             class="input"
+                            v-model="person.endereco.cidade"
                         />
                         <div class="content-block">
                             <ErrorMessage name="cidade" class="error" />
@@ -86,6 +91,7 @@
                             autocomplete="cep"
                             class="input"
                             v-mask="'######-###'"
+                            v-model="person.endereco.cep"
                         />
                         <div class="content-block">
                             <ErrorMessage name="cep" class="error" />
@@ -94,7 +100,11 @@
 
                     <div class="control-container">
                         <label>Estado</label>
-                        <Field name="estado" as="select">
+                        <Field
+                            name="estado"
+                            as="select"
+                            v-model="person.endereco.estado"
+                        >
                             <option value="" disabled>
                                 Selecione o Estado
                             </option>
@@ -119,6 +129,7 @@
                             name="numero"
                             autocomplete="numero"
                             class="input"
+                            v-model="person.endereco.numero"
                         />
                         <div class="content-block">
                             <ErrorMessage name="numero" class="error" />
@@ -132,10 +143,21 @@
                             name="pais"
                             autocomplete="pais"
                             class="input"
+                            v-model="person.endereco.pais"
                         />
                         <div class="content-block">
                             <ErrorMessage name="pais" class="error" />
                         </div>
+                    </div>
+
+                    <div class="control-container">
+                        <label>Foto</label>
+                        <input
+                            ref="foto"
+                            type="file"
+                            class="input"
+                            @change="handleFileChange"
+                        />
                     </div>
 
                     <div class="submit-section">
@@ -158,7 +180,7 @@
 import { ref } from "vue"
 import { useForm, Form, Field, ErrorMessage } from "vee-validate"
 import { listObjectUf } from "./static/list-object-uf"
-import { schemaSave } from "./person-save-schema"
+import { schemaUpdate } from "./person-update-schema"
 import { PersonService } from "./person-service"
 
 export default {
@@ -170,8 +192,29 @@ export default {
 
     setup() {
         const { isSubmitting, meta, errors, handleSubmit } = useForm()
+        const foto = ref(null)
+        const person = ref({
+            id: 0,
+            nome: "",
+            cpf: "",
+            endereco: {
+                id: 0,
+                logradouro: "",
+                numero: 0,
+                cep: "",
+                bairro: "",
+                cidade: "",
+                estado: "",
+                pais: "",
+            },
+            foto: {
+                id: 0,
+                name: "",
+                type: "",
+            },
+        })
         const states = ref(listObjectUf)
-        const schema = schemaSave
+        const schema = schemaUpdate
 
         return {
             schema,
@@ -179,8 +222,15 @@ export default {
             isSubmitting,
             meta,
             states,
+            foto,
             handleSubmit,
+            person,
         }
+    },
+
+    async mounted() {
+        this.id = this.$route.params.id
+        await this.findById()
     },
 
     methods: {
@@ -210,6 +260,24 @@ export default {
                     pais,
                 },
             }
+        },
+
+        async findById() {
+            const result = await PersonService.findPersonById(
+                this.id,
+                this.$axios
+            )
+            if (!result) return
+            this.person = result
+        },
+
+        async handleFileChange() {
+            const id = this.person?.id
+            const foto = this.foto?.files[0]
+
+            if (!(id && foto)) return
+
+            await PersonService.uploadFoto(id, foto, this.$axios)
         },
 
         async handleSubmit(value, { resetForm }) {

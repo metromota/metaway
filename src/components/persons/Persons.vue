@@ -18,13 +18,13 @@
                         <div class="input-search">
                             <Field
                                 type="search"
-                                name="termo"
-                                autocomplete="termo"
+                                name="nome"
+                                autocomplete="nome"
                                 class="input"
                                 placeholder="Buscar Pessoas"
                             />
                             <div class="content-block">
-                                <ErrorMessage name="termo" class="error" />
+                                <ErrorMessage name="nome" class="error" />
                             </div>
                         </div>
                         <div class="btn-search-container">
@@ -46,13 +46,25 @@
                     <li v-for="person in personsFinded">
                         <div class="flex gap-2 dots">
                             <span>{{ person?.id }}</span>
+                            <span>-</span>
+                            <span>{{ person?.nome }}</span>
                         </div>
-                        <button
-                            class="btn-trash"
-                            @click="deletePerson(person?.id)"
-                        >
-                            <BIconTrashFill></BIconTrashFill>
-                        </button>
+
+                        <div class="flex gap-2">
+                            <button
+                                class="btn-search"
+                                @click="editPerson(person?.id)"
+                            >
+                                <BIconPencilFill></BIconPencilFill>
+                            </button>
+
+                            <button
+                                class="btn-trash"
+                                @click="deletePerson(person?.id)"
+                            >
+                                <BIconTrashFill></BIconTrashFill>
+                            </button>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -63,13 +75,10 @@
 <script lang="ts">
 import * as yup from "yup"
 import { Form, Field, ErrorMessage, useForm } from "vee-validate"
-import { TipoHttpCodes } from "../../core/enums/tipo-httpcodes.enum"
 import { Person } from "../../core/models/person"
-import { useToast } from "vue-toastification"
 import { computed, ref } from "vue"
 import { BIconPlus, BIconTrashFill } from "bootstrap-icons-vue"
-
-const toast = useToast()
+import { PersonService } from "./person-service"
 
 export default {
     components: {
@@ -83,19 +92,11 @@ export default {
     setup() {
         let persons = ref<Person[]>([])
         const { isSubmitting, meta, errors } = useForm()
-
-        const schema = yup.object({
-            termo: yup
-                .string()
-                .min(5, "Deve possuir no mínimo 5 caracteres")
-                .required("O campo deve estar preenchido"),
-        })
-
+        const schema = yup.object({ nome: yup.string() })
+        const personsFinded = computed(() => persons.value)
         const changePersons = (newPersons: Person[]) => {
             persons.value = [...newPersons]
         }
-
-        const personsFinded = computed(() => persons.value)
 
         return {
             errors,
@@ -108,56 +109,33 @@ export default {
         }
     },
 
+    async mounted() {
+        await this.searchPerson({ nome: "" })
+    },
+
     methods: {
         handleNewPerson() {
             this.$router.push("/dashboard/persons/novo")
         },
 
-        async searchPerson(value) {
-            const url = `/api/person/pesquisar`
-            try {
-                const responseRequest = await this.$axios.post(url, value)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { data } = responseRequest
-                    this.changePersons(data)
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
+        editPerson(id: number) {
+            this.$router.push(`/dashboard/persons/atualizar/${id}`)
+        },
 
-                if (response.status === TipoHttpCodes.NOT_FOUND) {
-                    toast.error(
-                        `Não foi encontrado nenhum resultado para o termo: ${value.termo}`
-                    )
-                }
+        async searchPerson(value) {
+            const result = await PersonService.findPerson(
+                value?.nome,
+                this.$axios
+            )
+            if (result) {
+                this.changePersons(result)
             }
         },
 
         async deletePerson(id) {
-            const url = `/api/person/remover/${id}`
-            try {
-                const responseRequest = await this.$axios.delete(url)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { message, object } = responseRequest
-                    if (object) toast.success(message)
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
-
-                if (response.status === TipoHttpCodes.NO_CONTENT) {
-                    toast.error(
-                        `Não existe contato com este identificador: ${id}`
-                    )
-                }
+            const result = await PersonService.deletePerson(id, this.$axios)
+            if (result) {
+                await this.searchPerson({ nome: "" })
             }
         },
     },

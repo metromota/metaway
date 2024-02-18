@@ -6,6 +6,10 @@ const contactRoutes = [
     {
         path: "contacts/novo",
         component: () => import("../../components/contacts/FormContact.vue"),
+    },
+    {
+        path: "contacts/atualizar/:id",
+        component: () => import("../../components/contacts/FormContactUpdate.vue"),
     }
 
 ]

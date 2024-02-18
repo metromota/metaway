@@ -2,7 +2,7 @@
     <div class="view-page">
         <div class="container">
             <div class="heading">
-                <h2 class="title">Cadastro de Contato</h2>
+                <h2 class="title">Atualizar Contato</h2>
             </div>
 
             <div class="content">
@@ -81,6 +81,7 @@
                             name="tag"
                             autocomplete="tag"
                             class="input"
+                            v-model="contact.tag"
                         />
                         <div class="content-block">
                             <ErrorMessage name="tag" class="error" />
@@ -108,6 +109,7 @@
                             name="telefone"
                             autocomplete="telefone"
                             class="input"
+                            v-model="contact.telefone"
                         />
                         <div class="content-block">
                             <ErrorMessage name="telefone" class="error" />
@@ -121,6 +123,7 @@
                             name="email"
                             autocomplete="email"
                             class="input"
+                            v-model="contact.email"
                         />
                         <div class="content-block">
                             <ErrorMessage name="email" class="error" />
@@ -129,7 +132,11 @@
 
                     <div class="control-container">
                         <label>Tipo de Contato</label>
-                        <Field name="tipoContato" as="select">
+                        <Field
+                            name="tipoContato"
+                            as="select"
+                            v-model="contact.tipoContato"
+                        >
                             <option value="" disabled>
                                 Selecione um tipo de contato
                             </option>
@@ -154,7 +161,7 @@
                             "
                             class="btn-save"
                         >
-                            Salvar
+                            Atualizar
                         </button>
                     </div>
                 </Form>
@@ -167,10 +174,10 @@
 import { ref } from "vue"
 import { useForm, Form, Field, ErrorMessage } from "vee-validate"
 import { ContactService } from "./contact-service"
+import { schemaUpdate } from "./contact-update-schema"
+import { listContact } from "./static/list-contact"
 import { UserService } from "../users/user-service"
 import { PersonService } from "../persons/person-service"
-import { schemaSave } from "./contact-save-schema"
-import { listContact } from "./static/list-contact"
 
 export default {
     components: {
@@ -188,16 +195,28 @@ export default {
         const person = ref(null)
         const userSearchValue = ref("")
         const personSearchValue = ref("")
+
+        const id = ref(null)
         const types = ref(listContact)
-        const schema = schemaSave
+        const contact = ref({
+            id: 0,
+            email: "",
+            pessoa: {},
+            privado: true,
+            tag: "",
+            telefone: "",
+            tipoContato: "CELULAR",
+            usuario: {},
+        })
+        const schema = schemaUpdate
 
         return {
+            handleSubmit,
             schema,
             errors,
             isSubmitting,
             meta,
             types,
-            handleSubmit,
             user,
             person,
             usersFinded,
@@ -205,10 +224,32 @@ export default {
             userSearchValue,
             personSearchValue,
             privado,
+            id,
+            contact,
         }
     },
 
+    async mounted() {
+        this.id = this.$route.params.id
+        await this.getById()
+    },
+
     methods: {
+        async getById() {
+            const id = this.id
+            const result = await ContactService.getContactFromIDPerson(
+                id,
+                this.$axios
+            )
+            if (result) {
+                this.contact = result
+                this.user = result?.usuario
+                this.person = result?.pessoa
+                this.userSearchValue = result?.usuario?.nome
+                this.personSearchValue = result?.pessoa?.nome
+            }
+        },
+
         async clearList(ev, list) {
             const isEmpty = ev.target.value.length === 0
             if (isEmpty) this[list] = null
@@ -267,11 +308,13 @@ export default {
 
         mapContact(value) {
             const privado = !!this.privado
-            const usuario = this.user
-            const pessoa = this.person
-            const contactObject = { ...value, pessoa, usuario, privado }
+            const usuario = this.contact.usuario
+            const pessoa = this.contact.pessoa
+            const id = this.contact?.id
+            const contactObject = { ...value, pessoa, usuario, privado, id }
             delete contactObject.userSearch
             delete contactObject.personSearch
+
             return contactObject
         },
     },

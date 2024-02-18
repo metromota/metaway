@@ -3,19 +3,10 @@
         <HeaderLogin />
 
         <div class="card">
-            <Form
-                @submit="onSubmit"
-                :validation-schema="schema"
-                v-slot="{ meta, isSubmitting }"
-            >
+            <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ isSubmitting }">
                 <div class="control-container">
                     <label>Username</label>
-                    <Field
-                        type="text"
-                        name="username"
-                        autocomplete="username"
-                        class="input"
-                    />
+                    <Field type="text" name="username" autocomplete="username" class="input" />
                     <div class="content-block">
                         <ErrorMessage name="username" class="error" />
                     </div>
@@ -23,22 +14,14 @@
 
                 <div class="control-container">
                     <label>Senha</label>
-                    <Field
-                        type="password"
-                        name="password"
-                        autocomplete="current-password"
-                        class="input"
-                    />
+                    <Field type="password" name="password" autocomplete="current-password" class="input" />
                     <div class="content-block">
                         <ErrorMessage name="password" class="error" />
                     </div>
                 </div>
 
                 <div class="control-container submit-section">
-                    <button
-                        :disabled="!(meta.dirty && meta.valid) || isSubmitting"
-                        class="btn"
-                    >
+                    <button :disabled="isSubmitting" class="btn">
                         Entrar
                     </button>
                 </div>
@@ -50,7 +33,6 @@
 <script lang="ts">
 import * as yup from "yup"
 import HeaderLogin from "../components/HeaderLogin.vue"
-import { TipoHttpCodes } from "../core/enums/tipo-httpcodes.enum"
 import { AuthResponse } from "../core/models/auth-response"
 import { useToast } from "vue-toastification"
 import { Form, Field, ErrorMessage, useForm } from "vee-validate"
@@ -58,6 +40,7 @@ import { Form, Field, ErrorMessage, useForm } from "vee-validate"
 const toast = useToast()
 
 export default {
+
     setup() {
         const { isSubmitting, meta, errors } = useForm()
 
@@ -97,38 +80,40 @@ export default {
     },
 
     methods: {
+
         async onSubmit(value) {
-            const url = `/api/auth/login`
-            try {
-                const responseRequest = await this.$axios.post(url, value)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { data } = responseRequest
-                    this.authOK(data)
-                    toast.success("Login realizado com sucesso")
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
+
+            const response = await this.$store.dispatch('executeLogin', value)
+            const { status, data } = response
+
+            if (status === 200) {
+                this.saveInfoOnStorage(data)
+                toast.success("Login realizado com sucesso")
+                return
             }
+
+            toast.error(data)
         },
 
-        authOK(response: AuthResponse) {
-            const access_token = response.accessToken
-            localStorage.setItem("@metaway-token", access_token)
+        saveInfoOnStorage(response: AuthResponse) {
+
+            const { accessToken, id } = response
+
+            localStorage.setItem("@metaway-token", accessToken)
+            localStorage.setItem("@metaway-id", JSON.stringify(id))
+
             this.$router.push("/dashboard/")
-        },
-    },
+        }
+    }
 }
+
 </script>
 
 <style scoped>
 .view {
     @apply w-full h-screen flex flex-col gap-4 justify-center items-center;
 }
+
 .card {
     @apply p-10 md:rounded-xl shadow-xl border w-full md:w-[35%] lg:w-[30%] xl:w-[25%];
 }

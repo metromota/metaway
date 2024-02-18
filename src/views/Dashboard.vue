@@ -5,9 +5,7 @@
                 <Menu></Menu>
             </div>
             <main class="main">
-                <span v-if="$route.name === 'dashboard'"
-                    >Escolha uma área no menu acima</span
-                >
+                <span v-if="$route.name === 'dashboard'">Escolha uma área no menu acima</span>
                 <RouterView></RouterView>
             </main>
         </div>

@@ -85,7 +85,7 @@ button:disabled{
 }
 
 .title{
-    @apply text-center text-3xl font-semibold my-5;
+    @apply text-center text-xl font-semibold my-5;
 }
 
 .view-page {
@@ -109,11 +109,11 @@ button:disabled{
 }
 
 .input-search{
-    @apply flex flex-col  w-[88%] md:w-[85%] lg:w-[90%];
+    @apply flex flex-col  w-full;
 }
 
 .btn-search-container{
-    @apply flex w-[12%] md:w-[15%] lg:w-[10%];
+    @apply flex w-[40px];
 }
 
 .lists {

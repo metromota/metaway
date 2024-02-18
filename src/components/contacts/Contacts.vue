@@ -46,14 +46,24 @@
                     <li v-for="contact in contactsFinded">
                         <div class="flex gap-2 dots">
                             <span>{{ contact?.id }}</span>
+                            <span>-</span>
                             <span>{{ contact?.pessoa?.nome }}</span>
                         </div>
-                        <button
-                            class="btn-trash"
-                            @click="deleteContact(contact?.id)"
-                        >
-                            <BIconTrashFill></BIconTrashFill>
-                        </button>
+                        <div class="flex gap-2">
+                            <button
+                                class="btn-search"
+                                @click="editContact(contact?.pessoa?.id)"
+                            >
+                                <BIconPencilFill></BIconPencilFill>
+                            </button>
+
+                            <button
+                                class="btn-trash"
+                                @click="deleteContact(contact?.id)"
+                            >
+                                <BIconTrashFill></BIconTrashFill>
+                            </button>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -65,12 +75,9 @@
 import * as yup from "yup"
 import { Form, Field, ErrorMessage, useForm } from "vee-validate"
 import { Contact } from "../../core/models/contact"
-import { TipoHttpCodes } from "../../core/enums/tipo-httpcodes.enum"
-import { useToast } from "vue-toastification"
 import { computed, ref } from "vue"
 import { BIconPlus, BIconTrashFill } from "bootstrap-icons-vue"
-
-const toast = useToast()
+import { ContactService } from "./contact-service"
 
 export default {
     components: {
@@ -82,8 +89,8 @@ export default {
     },
 
     setup() {
-        let contacts = ref<Contact[]>([])
         const { isSubmitting, meta, errors } = useForm()
+        const contacts = ref<Contact[]>([])
 
         const schema = yup.object({
             termo: yup
@@ -109,57 +116,32 @@ export default {
         }
     },
 
+    mounted() {
+        this.searchContact({ termo: "" })
+    },
+
     methods: {
         handleNewContact() {
             this.$router.push("/dashboard/contacts/novo")
         },
 
-        async searchContact(value) {
-            const url = `/api/contato/pesquisar`
-            try {
-                const responseRequest = await this.$axios.post(url, value)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { data } = responseRequest
-                    this.changeContacts(data)
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
+        editContact(id: number) {
+            this.$router.push(`/dashboard/contacts/atualizar/${id}`)
+        },
 
-                if (response.status === TipoHttpCodes.NOT_FOUND) {
-                    toast.error(
-                        `Não foi encontrado nenhum resultado para o termo: ${value.termo}`
-                    )
-                }
+        async searchContact(value) {
+            const result = await ContactService.searchContact(
+                value,
+                this.$axios
+            )
+            if (result) {
+                this.changeContacts(result)
             }
         },
 
         async deleteContact(id) {
-            const url = `/api/contato/remover/${id}`
-            try {
-                const responseRequest = await this.$axios.delete(url)
-                const { status } = responseRequest
-                if (status === TipoHttpCodes.OK) {
-                    const { message, object } = responseRequest
-                    if (object) toast.success(message)
-                }
-            } catch ({ response }) {
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
-
-                if (response.status === TipoHttpCodes.NO_CONTENT) {
-                    toast.error(
-                        `Não existe contato com este identificador: ${id}`
-                    )
-                }
-            }
+            await ContactService.deleteContact(id, this.$axios)
+            this.searchContact({ termo: "" })
         },
     },
 }

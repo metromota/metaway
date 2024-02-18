@@ -1,5 +1,5 @@
 export enum TipoContato {
-    "TELEFONE",
-    "EMAIL",
-    "CELULAR"
+    TELEFONE = "TELEFONE",
+    EMAIL = "EMAIL",
+    CELULAR = "CELULAR"
 }

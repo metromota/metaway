@@ -2,7 +2,7 @@
     <div class="view-page">
         <div class="container">
             <div class="heading">
-                <h2 class="title">Cadastro de Usuário</h2>
+                <h2 class="title">Atualizar Usuário</h2>
             </div>
 
             <div class="content">
@@ -19,6 +19,7 @@
                             name="nome"
                             autocomplete="nome"
                             class="input"
+                            v-model="user.nome"
                         />
                         <div class="content-block">
                             <ErrorMessage name="nome" class="error" />
@@ -32,6 +33,7 @@
                             name="email"
                             autocomplete="email"
                             class="input"
+                            v-model="user.email"
                         />
                         <div class="content-block">
                             <ErrorMessage name="email" class="error" />
@@ -46,6 +48,7 @@
                             autocomplete="cpf"
                             class="input"
                             v-mask="'###.###.###-##'"
+                            v-model="user.cpf"
                         />
                         <div class="content-block">
                             <ErrorMessage name="cpf" class="error" />
@@ -59,6 +62,7 @@
                             name="dataNascimento"
                             autocomplete="dataNascimento"
                             class="input"
+                            v-model="user.dataNascimento"
                         />
                         <div class="content-block">
                             <ErrorMessage name="dataNascimento" class="error" />
@@ -73,6 +77,7 @@
                             autocomplete="telefone"
                             class="input"
                             v-mask="'(##) #####-####'"
+                            v-model="user.telefone"
                         />
                         <div class="content-block">
                             <ErrorMessage name="telefone" class="error" />
@@ -86,6 +91,7 @@
                             name="username"
                             autocomplete="username"
                             class="input"
+                            v-model="user.username"
                         />
                         <div class="content-block">
                             <ErrorMessage name="username" class="error" />
@@ -105,26 +111,6 @@
                         </div>
                     </div>
 
-                    <div class="control-container">
-                        <label>Tipo</label>
-                        <Field name="usertype" as="select">
-                            <option value="" disabled>
-                                Selecione o tipo de usuário
-                            </option>
-                            <option
-                                v-for="(typ, index) in types"
-                                :value="typ.value"
-                                :key="index"
-                                :selected="typ.value === 'ROLE_USER'"
-                            >
-                                {{ typ.label }}
-                            </option>
-                        </Field>
-                        <div class="content-block">
-                            <ErrorMessage name="usertype" class="error" />
-                        </div>
-                    </div>
-
                     <div class="submit-section">
                         <button
                             :disabled="
@@ -132,7 +118,7 @@
                             "
                             class="btn-save"
                         >
-                            Salvar
+                            Atualizar
                         </button>
                     </div>
                 </Form>
@@ -142,10 +128,9 @@
 </template>
 
 <script lang="ts">
+import { schemaUpdate } from "./user-update-schema"
 import { ref } from "vue"
 import { useForm, Form, Field, ErrorMessage } from "vee-validate"
-import { RoleUser } from "../../core/enums/tipo-acesso.enum"
-import { schemaSave } from "./user-save-schema"
 import { UserService } from "./user-service"
 
 export default {
@@ -157,43 +142,55 @@ export default {
 
     setup() {
         const { isSubmitting, meta, errors, handleSubmit } = useForm()
-        const types = ref([
-            {
-                label: "Admin",
-                value: RoleUser.ROLE_ADMIN,
-            },
-            {
-                label: "Usuário",
-                value: RoleUser.ROLE_USER,
-            },
-        ])
-
-        const schema = schemaSave
+        const id = ref(null)
+        const user = ref({
+            cpf: "",
+            dataNascimento: "",
+            email: "",
+            nome: "",
+            telefone: "",
+            username: "",
+            password: "",
+            usertype: "",
+        })
+        const schema = schemaUpdate
 
         return {
             schema,
             errors,
             isSubmitting,
             meta,
-            types,
             handleSubmit,
+            user,
+            id,
         }
+    },
+
+    async mounted() {
+        this.id = this.$route.params.id
+        await this.findById()
     },
 
     methods: {
         mapUser(value) {
-            const { usertype } = value
+            const { usertype } = this.user
             const expectUser = {
-                tipos: [usertype],
+                tipos: [...usertype],
                 usuario: { ...value },
             }
             delete expectUser?.usuario?.usertype
             return expectUser
         },
 
+        async findById() {
+            const result = await UserService.findUserById(this.id, this.$axios)
+            if (!result) return
+            this.user = result
+        },
+
         async handleSubmit(value, { resetForm }) {
             const expectUser = this.mapUser(value)
-            const result = await UserService.saveUser(expectUser, this.$axios)
+            const result = UserService.saveUser(expectUser, this.$axios)
             if (result) {
                 resetForm()
             }
