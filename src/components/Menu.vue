@@ -3,10 +3,17 @@
         <div class="flex justify-between items-center w-full">
             <ul class="menu">
                 <li v-for="(item, index) in filtereds" :key="index">
-                    <RouterLink :to="item?.link" :class="{ selected: isSelected(item) }">{{ item?.label }}</RouterLink>
+                    <RouterLink
+                        :to="item?.link"
+                        :class="{ selected: isSelected(item) }"
+                        >{{ item?.label }}</RouterLink
+                    >
                 </li>
             </ul>
-            <div>
+            <div class="flex items-center gap-4">
+                <button @click="handleConfig">
+                    <BIconGear></BIconGear>
+                </button>
                 <button class="btn-exit" @click="logout">
                     <BIconPower></BIconPower> Sair
                 </button>
@@ -16,14 +23,12 @@
 </template>
 
 <script lang="ts">
-import { BIconPower } from "bootstrap-icons-vue"
+import { BIconPower, BIconGear } from "bootstrap-icons-vue"
 import { ref, computed } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useStore } from "vuex"
 
-
 export default {
-
     components: { BIconPower },
 
     setup() {
@@ -33,15 +38,16 @@ export default {
         const router = useRouter()
         const items = ref([
             { label: "Homepage", link: "/dashboard/" },
-            { label: "Meu Cadastro", link: "/dashboard/userdata" },
             { label: "Usuários", link: "/dashboard/users" },
             { label: "Pessoas", link: "/dashboard/persons" },
             { label: "Contatos", link: "/dashboard/contacts" },
         ])
 
         const filtereds = computed(() => {
-            const haveusers = rota => !rota.link.includes('users')
-            return store.state.isAdmin ? items.value : items.value.filter(haveusers)
+            const haveusers = (rota) => !rota.link.includes("users")
+            return store.state.isAdmin
+                ? items.value
+                : items.value.filter(haveusers)
         })
 
         const isSelected = (item) => {
@@ -50,6 +56,7 @@ export default {
 
         const logout = () => {
             localStorage.removeItem("@metaway-token")
+            localStorage.removeItem("@metaway-id")
             router.push("/")
         }
 
@@ -61,13 +68,15 @@ export default {
     },
 
     methods: {
+        handleConfig() {
+            this.$router.push("/dashboard/userdata")
+        },
 
         async getLoggedUser() {
             const id = localStorage.getItem("@metaway-id")
-            await this.$store.dispatch('setUserByID', id)
-        }
+            await this.$store.dispatch("setUserByID", id)
+        },
     },
-
 }
 </script>
 
@@ -76,7 +85,7 @@ export default {
     @apply flex flex-col md:flex-row gap-[1px] p-1;
 }
 
-.menu>li {
+.menu > li {
     @apply w-full text-center;
 }
 

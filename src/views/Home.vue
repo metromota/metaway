@@ -3,10 +3,19 @@
         <HeaderLogin />
 
         <div class="card">
-            <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ isSubmitting }">
+            <Form
+                @submit="onSubmit"
+                :validation-schema="schema"
+                v-slot="{ isSubmitting }"
+            >
                 <div class="control-container">
                     <label>Username</label>
-                    <Field type="text" name="username" autocomplete="username" class="input" />
+                    <Field
+                        type="text"
+                        name="username"
+                        autocomplete="username"
+                        class="input"
+                    />
                     <div class="content-block">
                         <ErrorMessage name="username" class="error" />
                     </div>
@@ -14,16 +23,19 @@
 
                 <div class="control-container">
                     <label>Senha</label>
-                    <Field type="password" name="password" autocomplete="current-password" class="input" />
+                    <Field
+                        type="password"
+                        name="password"
+                        autocomplete="current-password"
+                        class="input"
+                    />
                     <div class="content-block">
                         <ErrorMessage name="password" class="error" />
                     </div>
                 </div>
 
                 <div class="control-container submit-section">
-                    <button :disabled="isSubmitting" class="btn">
-                        Entrar
-                    </button>
+                    <button :disabled="isSubmitting" class="btn">Entrar</button>
                 </div>
             </Form>
         </div>
@@ -40,7 +52,6 @@ import { Form, Field, ErrorMessage, useForm } from "vee-validate"
 const toast = useToast()
 
 export default {
-
     setup() {
         const { isSubmitting, meta, errors } = useForm()
 
@@ -74,16 +85,9 @@ export default {
         ErrorMessage,
     },
 
-    computed: {
-        title: () => `Metaway`,
-        description: () => `Aquele que ama o mundo`,
-    },
-
     methods: {
-
         async onSubmit(value) {
-
-            const response = await this.$store.dispatch('executeLogin', value)
+            const response = await this.$store.dispatch("executeLogin", value)
             const { status, data } = response
 
             if (status === 200) {
@@ -96,17 +100,16 @@ export default {
         },
 
         saveInfoOnStorage(response: AuthResponse) {
-
             const { accessToken, id } = response
-
             localStorage.setItem("@metaway-token", accessToken)
             localStorage.setItem("@metaway-id", JSON.stringify(id))
 
-            this.$router.push("/dashboard/")
-        }
-    }
+            setTimeout(() => {
+                this.$router.push("/dashboard/")
+            }, 200)
+        },
+    },
 }
-
 </script>
 
 <style scoped>

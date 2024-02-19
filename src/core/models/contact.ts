@@ -12,4 +12,5 @@ export interface Contact {
     telefone: string,
     tipoContato?: TipoContato,
     usuario?: User
+    foto?: string
 }

@@ -3,7 +3,6 @@ import { useToast } from "vue-toastification"
 
 export class UserService {
 
-
     static async saveUser(user, fetchProvider) {
         const toast = useToast()
         const url = `/api/usuario/salvar`
@@ -27,11 +26,7 @@ export class UserService {
         } catch ({ response }) {
             const { data } = response
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error(
-                    "Credenciais estão erradas revise e tente novamente"
-                )
-            }
+
 
             if (response.status === TipoHttpCodes.BAD_REQUEST) {
                 const { message } = data
@@ -65,10 +60,6 @@ export class UserService {
         } catch ({ response }) {
             const { data } = response
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
-
             if (response.status === TipoHttpCodes.BAD_REQUEST) {
                 const { message } = data
                 toast.error(message)
@@ -99,11 +90,6 @@ export class UserService {
                 return data
             }
         } catch ({ response }) {
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error(
-                    "Credenciais estão erradas revise e tente novamente"
-                )
-            }
 
             if (response.status === TipoHttpCodes.NOT_FOUND) {
                 toast.error(
@@ -134,10 +120,6 @@ export class UserService {
             }
         } catch ({ response }) {
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
-
             if (response.status === TipoHttpCodes.NOT_FOUND) {
                 toast.error(`Não foi encontrado nenhum usuário para o cpf: ${cpf}`)
             }
@@ -164,10 +146,6 @@ export class UserService {
                 return data
             }
         } catch ({ response }) {
-
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
 
             if (response.status === TipoHttpCodes.NOT_FOUND) {
                 toast.error(`Não foi encontrado nenhum usuário para o nome: ${nome}`)

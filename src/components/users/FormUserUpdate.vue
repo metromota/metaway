@@ -156,11 +156,11 @@ export default {
         const schema = schemaUpdate
 
         return {
+            handleSubmit,
             schema,
             errors,
             isSubmitting,
             meta,
-            handleSubmit,
             user,
             id,
         }
@@ -190,7 +190,8 @@ export default {
 
         async handleSubmit(value, { resetForm }) {
             const expectUser = this.mapUser(value)
-            const result = UserService.saveUser(expectUser, this.$axios)
+            const result = await UserService.saveUser(expectUser, this.$axios)
+
             if (result) {
                 resetForm()
             }

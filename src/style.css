@@ -145,6 +145,13 @@ button:disabled{
     hover:bg-[--error-hover] rounded-full;
 }
 
+.btn-fav {
+    @apply p-2 h-[40px] w-[40px]  
+    shadow-md border text-[#d1a727] 
+    flex justify-center items-center
+    rounded-full bg-white;
+}
+
 .btn-save{
    @apply bg-blue-700 hover:bg-blue-800 p-2 rounded-md text-white;
 }

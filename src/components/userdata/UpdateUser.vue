@@ -2,14 +2,25 @@
     <div class="view-page">
         <div class="container">
             <div class="heading">
-                <h2 class="title">Atualização Meu Cadastro </h2>
+                <h2 class="title">Atualização Meu Cadastro</h2>
             </div>
 
             <div class="content">
-                <Form @submit="handleSubmit" :validation-schema="schema" v-slot="{ meta, isSubmitting }" class="grade">
+                <Form
+                    @submit="handleSubmit"
+                    :validation-schema="schema"
+                    v-slot="{ meta, isSubmitting }"
+                    class="grade"
+                >
                     <div class="control-container">
                         <label>Nome</label>
-                        <Field type="text" name="nome" autocomplete="nome" class="input" v-model="user.nome" />
+                        <Field
+                            type="text"
+                            name="nome"
+                            autocomplete="nome"
+                            class="input"
+                            v-model="user.nome"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="nome" class="error" />
                         </div>
@@ -17,7 +28,13 @@
 
                     <div class="control-container">
                         <label>Email</label>
-                        <Field type="email" name="email" autocomplete="email" class="input" v-model="user.email" />
+                        <Field
+                            type="email"
+                            name="email"
+                            autocomplete="email"
+                            class="input"
+                            v-model="user.email"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="email" class="error" />
                         </div>
@@ -25,8 +42,14 @@
 
                     <div class="control-container">
                         <label>Cpf</label>
-                        <Field type="text" name="cpf" autocomplete="cpf" class="input" v-mask="'###.###.###-##'"
-                            v-model="user.cpf" />
+                        <Field
+                            type="text"
+                            name="cpf"
+                            autocomplete="cpf"
+                            class="input"
+                            v-mask="'###.###.###-##'"
+                            v-model="user.cpf"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="cpf" class="error" />
                         </div>
@@ -34,8 +57,13 @@
 
                     <div class="control-container">
                         <label>Data Nascimento</label>
-                        <Field type="date" name="dataNascimento" autocomplete="dataNascimento" class="input"
-                            v-model="user.dataNascimento" />
+                        <Field
+                            type="date"
+                            name="dataNascimento"
+                            autocomplete="dataNascimento"
+                            class="input"
+                            v-model="user.dataNascimento"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="dataNascimento" class="error" />
                         </div>
@@ -43,8 +71,14 @@
 
                     <div class="control-container">
                         <label>Telefone</label>
-                        <Field type="text" name="telefone" autocomplete="telefone" class="input" v-mask="'(##) #####-####'"
-                            v-model="user.telefone" />
+                        <Field
+                            type="text"
+                            name="telefone"
+                            autocomplete="telefone"
+                            class="input"
+                            v-mask="'(##) #####-####'"
+                            v-model="user.telefone"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="telefone" class="error" />
                         </div>
@@ -52,7 +86,13 @@
 
                     <div class="control-container">
                         <label>Username</label>
-                        <Field type="text" name="username" autocomplete="username" class="input" v-model="user.username" />
+                        <Field
+                            type="text"
+                            name="username"
+                            autocomplete="username"
+                            class="input"
+                            v-model="user.username"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="username" class="error" />
                         </div>
@@ -60,15 +100,24 @@
 
                     <div class="control-container">
                         <label>Senha</label>
-                        <Field type="password" name="password" autocomplete="current-password" class="input" />
+                        <Field
+                            type="password"
+                            name="password"
+                            autocomplete="current-password"
+                            class="input"
+                        />
                         <div class="content-block">
                             <ErrorMessage name="password" class="error" />
                         </div>
                     </div>
 
                     <div class="submit-section">
-                        <button :disabled="!(meta.dirty && meta.valid) || isSubmitting
-                            " class="btn-save">
+                        <button
+                            :disabled="
+                                !(meta.dirty && meta.valid) || isSubmitting
+                            "
+                            class="btn-save"
+                        >
                             Salvar
                         </button>
                     </div>
@@ -98,14 +147,14 @@ export default {
         const { isSubmitting, meta, errors, handleSubmit } = useForm()
         const id = ref(null)
         const user = ref({
-            cpf: '',
-            dataNascimento: '',
-            email: '',
-            nome: '',
-            telefone: '',
-            username: '',
-            password: '',
-            usertype: ''
+            cpf: "",
+            dataNascimento: "",
+            email: "",
+            nome: "",
+            telefone: "",
+            username: "",
+            password: "",
+            usertype: "",
         })
 
         const schema = yup.object({
@@ -148,17 +197,16 @@ export default {
             meta,
             handleSubmit,
             user,
-            id
+            id,
         }
     },
 
     async mounted() {
-        this.id = localStorage.getItem('@metaway-id')
+        this.id = localStorage.getItem("@metaway-id")
         await this.getById()
     },
 
     methods: {
-
         async getById() {
             const url = `/api/usuario/buscar/${this.id}`
 
@@ -178,23 +226,15 @@ export default {
                     if (!object) {
                         toast.info(message)
                     }
-
                 }
             } catch ({ response }) {
                 const { data } = response
-
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
 
                 if (response.status === TipoHttpCodes.BAD_REQUEST) {
                     const { message } = data
                     toast.error(message)
                 }
             }
-
         },
 
         async handleSubmit(value) {
@@ -221,16 +261,8 @@ export default {
             } catch ({ response }) {
                 const { data } = response
 
-                if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                    toast.error(
-                        "Credenciais estão erradas revise e tente novamente"
-                    )
-                }
-
                 if (response.status === TipoHttpCodes.METHOD_NOT_ALLOWED) {
-                    toast.error(
-                        "Operação não está permitida"
-                    )
+                    toast.error("Operação não está permitida")
                 }
 
                 if (response.status === TipoHttpCodes.BAD_REQUEST) {

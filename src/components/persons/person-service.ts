@@ -25,11 +25,6 @@ export class PersonService {
             }
         } catch ({ response }) {
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-                return null
-            }
-
             if (response.status === TipoHttpCodes.NOT_FOUND) {
                 toast.error(`Não foi encontrado nenhuma pessoa para o nome: ${nome}`)
                 return null
@@ -47,22 +42,24 @@ export class PersonService {
             const { status } = responseRequest
 
             if (status === TipoHttpCodes.OK) {
-                const { message, object } = responseRequest
-                if (object) toast.success(message)
+                const { message } = responseRequest?.data
+                toast.success(message)
                 return true
             }
         } catch ({ response }) {
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error(
-                    "Credenciais estão erradas revise e tente novamente"
-                )
-            }
 
             if (response.status === TipoHttpCodes.NO_CONTENT) {
                 toast.error(
                     `Não existe contato com este identificador: ${id}`
                 )
             }
+
+            if (response.status === TipoHttpCodes.INTERNAL_SERVER_ERROR) {
+                toast.error(
+                    `Ocorreu um erro ao tentar realizar a exclusão: Contate o Suporte`
+                )
+            }
+
             return null
         }
     }
@@ -81,13 +78,6 @@ export class PersonService {
                 return object
             }
         } catch ({ response }) {
-
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error(
-                    "Credenciais estão erradas revise e tente novamente"
-                )
-            }
-
             return null
         }
 
@@ -115,10 +105,6 @@ export class PersonService {
         } catch ({ response }) {
             const { data } = response
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
-
             if (response.status === TipoHttpCodes.BAD_REQUEST) {
                 const { message } = data
                 toast.error(message)
@@ -142,7 +128,8 @@ export class PersonService {
 
         try {
             const response = await fetchProvider.post(url, formData, { headers })
-            console.log(response)
+            // existe um problema ao realizar o upload da foto
+            // server responde 401, mas em todas as requisições esta sendo enviado o token 
         } catch ({ response }) {
             if (response?.status === TipoHttpCodes.BAD_REQUEST) {
                 toast.error('Ocorreu um erro ao realizar o upload')

@@ -167,7 +167,7 @@
                             "
                             class="btn-save"
                         >
-                            Salvar
+                            Atualizar
                         </button>
                     </div>
                 </Form>
@@ -248,6 +248,7 @@ export default {
             } = value
 
             return {
+                id: this.id,
                 nome,
                 cpf,
                 endereco: {

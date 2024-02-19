@@ -27,10 +27,6 @@ export class ContactService {
         } catch ({ response }) {
             const { data } = response
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
-
             if (response.status === TipoHttpCodes.BAD_REQUEST) {
                 const { message } = data
                 toast.error(message)
@@ -63,10 +59,6 @@ export class ContactService {
 
         } catch ({ response }) {
 
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
-
             if (response.status === TipoHttpCodes.NOT_FOUND) {
                 toast.error(`Não foi encontrado nenhum resultado para o termo: ${value.termo}`)
             }
@@ -93,10 +85,6 @@ export class ContactService {
             return null
 
         } catch ({ response }) {
-
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error("Credenciais estão erradas revise e tente novamente")
-            }
 
             if (response.status === TipoHttpCodes.NO_CONTENT) {
                 toast.error(`Não existe contato com este identificador: ${id}`)
@@ -128,12 +116,6 @@ export class ContactService {
             }
         } catch ({ response }) {
             const { data } = response
-
-            if (response.status === TipoHttpCodes.UNAUTHORIZED) {
-                toast.error(
-                    "Credenciais estão erradas revise e tente novamente"
-                )
-            }
 
             if (response.status === TipoHttpCodes.BAD_REQUEST) {
                 const { message } = data
