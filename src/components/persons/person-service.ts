@@ -1,6 +1,6 @@
 import { TipoHttpCodes } from "../../core/enums/tipo-httpcodes.enum"
 import { useToast } from "vue-toastification"
-import { token } from "../../core/api/axios-service"
+import { Storage } from "../../core/storage/storage"
 
 export class PersonService {
 
@@ -118,6 +118,7 @@ export class PersonService {
     static async uploadFoto(id, foto, fetchProvider) {
         const toast = useToast()
         const url = `/api/foto/upload/${id}`
+        const token = Storage.getToken()
         const headers = {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`

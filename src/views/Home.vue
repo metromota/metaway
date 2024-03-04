@@ -48,6 +48,7 @@ import HeaderLogin from "../components/HeaderLogin.vue"
 import { AuthResponse } from "../core/models/auth-response"
 import { useToast } from "vue-toastification"
 import { Form, Field, ErrorMessage, useForm } from "vee-validate"
+import { Storage } from "../core/storage/storage"
 
 const toast = useToast()
 
@@ -90,23 +91,13 @@ export default {
             const response = await this.$store.dispatch("executeLogin", value)
             const { status, data } = response
 
-            if (status === 200) {
-                this.saveInfoOnStorage(data)
+            if (status === 200 && Storage.saveInfoOnStorage(data)) {
                 toast.success("Login realizado com sucesso")
+                this.$router.push("/dashboard/")
                 return
             }
 
             toast.error(data)
-        },
-
-        saveInfoOnStorage(response: AuthResponse) {
-            const { accessToken, id } = response
-            localStorage.setItem("@metaway-token", accessToken)
-            localStorage.setItem("@metaway-id", JSON.stringify(id))
-
-            setTimeout(() => {
-                this.$router.push("/dashboard/")
-            }, 200)
         },
     },
 }
