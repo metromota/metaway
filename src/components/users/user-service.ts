@@ -70,12 +70,12 @@ export class UserService {
 
     }
 
-    static async findUserByTermo(termo, fetchProvider): Promise<any> {
+    static async findUserByTermo({ termo }, fetchProvider): Promise<any> {
         const toast = useToast()
         const url = `/api/usuario/pesquisar`
 
         try {
-            const responseRequest = await fetchProvider.post(url, termo)
+            const responseRequest = await fetchProvider.post(url, { termo })
             const { status } = responseRequest
             if (status === TipoHttpCodes.OK) {
                 const { data } = responseRequest
